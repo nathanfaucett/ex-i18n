@@ -20,14 +20,12 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 
 ```elixir
 
-props = %{
-  "username" => %{
-    :validations => [I18n.string],
-    :required => true
-  },
-  "password" => %{
-    :validations => [PropType.requires("username"), I18n.string, min_length(6)],
-    :required => true
-}
+I18n.add(:en, %{
+  "home" => %{
+    "welcome" => "Welcome Home, %s!"
+  }
+})
+
+I18n.translate(:en, "home.welcome", ["Nathan"])
 
 ```
