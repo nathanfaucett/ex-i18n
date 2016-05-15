@@ -6,8 +6,8 @@ defmodule I18n do
   defmodule Error do
     defexception [:message]
 
-    def exception(msg), do: %I18n.Error{
-        message: msg
+    def exception(message), do: %I18n.Error{
+        message: message
       }
   end
 
@@ -35,10 +35,10 @@ defmodule I18n do
 
   def translate(locale, key, args) do
     if Tipo.string?(key) == false do
-      raise "(locale, key, [, ...args]) key must be a String"
+      throw I18n.Error.exception("key must be a String")
     end
     if Translations.has?(locale) == false do
-      raise "(locale, key, [, ...args]) no translations for " <> locale <> " locale"
+      throw I18n.Error.exception("no translations for " <> locale <> " locale")
     end
 
     translations = Translations.get(locale)
@@ -51,7 +51,23 @@ defmodule I18n do
   def translate(locale, key), do: translate(locale, key, [])
 
   def add(locale, map) do
-    Translations.set(locale, flatten_map(map))
+    translations = Translations.get(locale)
+    new_translations = flatten_map(map)
+
+    if Tipo.map?(translations) do
+      Enum.each(Map.keys(new_translations), fn (key) ->
+        if Map.has_key?(translations, key) do
+          throw I18n.Error.exception(
+            ExPrintf.sprintf(
+              "cannot override locale %s translation with key %s",
+              [locale, key]
+            )
+          )
+        end
+      end)
+    end
+
+    Translations.set(locale, new_translations)
   end
 
   defp flatten_map(map) do
@@ -70,7 +86,7 @@ defmodule I18n do
 
   defp missing_translation(key) do
     if Mix.env == :prod || Mix.env == :test do
-      I18n.Error.exception("i18n(locale, key) missing translation for key " <> key)
+      I18n.Error.exception("missing translation for key " <> key)
     else
       "--" <> key <> "--"
     end
