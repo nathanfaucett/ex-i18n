@@ -23,7 +23,7 @@ defmodule I18nTest do
     catch
       _, e -> e
     end
-    assert e ==  %I18n.Error{
+    assert e ==  %RuntimeError{
       message: "cannot override locale en translation with key test.two"
     }
 
@@ -35,7 +35,7 @@ defmodule I18nTest do
     catch
       _, e -> e
     end
-    assert e ==  %I18n.Error{
+    assert e ==  %RuntimeError{
       message: "missing translation for key test.three"
     }
   end

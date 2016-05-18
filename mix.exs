@@ -3,7 +3,7 @@ defmodule I18n.Mixfile do
 
   def project do
     [app: :i18n,
-     version: "0.0.1",
+     version: "0.0.2",
      description: description,
      package: package,
      elixir: "~> 1.2",

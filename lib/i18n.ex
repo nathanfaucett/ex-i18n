@@ -3,14 +3,6 @@ defmodule I18n do
   use Supervisor
 
 
-  defmodule Error do
-    defexception [:message]
-
-    def exception(message), do: %I18n.Error{
-        message: message
-      }
-  end
-
   defmodule Translations do
     def start_link() do
         Agent.start_link(fn -> %{} end, name: __MODULE__)
@@ -35,10 +27,10 @@ defmodule I18n do
 
   def translate(locale, key, args) do
     if Tipo.string?(key) == false do
-      throw I18n.Error.exception("key must be a String")
+      throw RuntimeError.exception("key must be a String")
     end
     if Translations.has?(locale) == false do
-      throw I18n.Error.exception("no translations for " <> locale <> " locale")
+      throw RuntimeError.exception("no translations for " <> locale <> " locale")
     end
 
     translations = Translations.get(locale)
@@ -57,7 +49,7 @@ defmodule I18n do
     if Tipo.map?(translations) do
       Enum.each(Map.keys(new_translations), fn (key) ->
         if Map.has_key?(translations, key) do
-          throw I18n.Error.exception(
+          throw RuntimeError.exception(
             ExPrintf.sprintf(
               "cannot override locale %s translation with key %s",
               [locale, key]
@@ -86,7 +78,7 @@ defmodule I18n do
 
   defp missing_translation(key) do
     if Mix.env == :prod || Mix.env == :test do
-      I18n.Error.exception("missing translation for key " <> key)
+      RuntimeError.exception("missing translation for key " <> key)
     else
       "--" <> key <> "--"
     end
